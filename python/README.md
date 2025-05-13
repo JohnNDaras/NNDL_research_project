@@ -58,7 +58,7 @@ def threshold_recall_wilson(
 ```
 
 **Purpose:**  
-Finds the smallest threshold \( \tau \) such that the one‐sided Wilson score lower bound on recall
+Finds the smallest threshold τ such that the one‐sided Wilson score lower bound on recall
 
 
 ![Image](https://github.com/user-attachments/assets/f2dc415e-82ed-4669-9514-42e1ad28f326)
