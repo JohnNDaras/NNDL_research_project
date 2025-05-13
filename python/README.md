@@ -64,7 +64,7 @@ my_project/
 
 ## Overview
 
-`thresholds.py` implements several **threshold‐selection algorithms** for achieving a user‐specified recall target \(R^\star\) on a set of positively‐labeled scores. Each function takes as input an array of scores for verified positives (and optionally labels), and returns the smallest score threshold whose corresponding lower‐bound recall (or estimated recall) meets or exceeds \(R^\star\).
+`thresholds.py` implements several **threshold‐selection algorithms** for achieving a user‐specified recall target R* on a set of positively‐labeled scores. Each function takes as input an array of scores for verified positives (and optionally labels), and returns the smallest score threshold whose corresponding lower‐bound recall (or estimated recall) meets or exceeds R*.
 
 ---
 
