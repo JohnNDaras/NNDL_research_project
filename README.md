@@ -94,7 +94,7 @@ This figure shows the mean achieved recall for each method across all datasets a
 - "Proposed" consistently exhibits lower variance and more stable recall.
 
 For questions, refer to the full implementation and code documentation in the respective Python and C++ components.
-> **Note:** The most important parts of this written report are implemented in  
+> **Note:** The most important parts of the written report are implemented in  
 > **`thresholds.py`**, **`ensemble.py`**, and **`calibration.py`**.
 
 
