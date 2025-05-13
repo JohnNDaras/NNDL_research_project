@@ -8,14 +8,6 @@
 #include <iostream>
 
 
-/*
-
-ΤΟ ΠΡΩΙ ΑΠΛΑ ΚΑΝΩ COPY PASTE ΑΠΟ ΤΟ GOOGLE COLAB
-
-*/
-
-
-
 extern "C" {
 
 /**
@@ -62,12 +54,9 @@ char** read_wkt_csv_fast(const char* filepath, char delimiter,
         return nullptr;
     }
 
-    // --- read at most MAX_GEOMS data rows, then stop ---
-    const size_t MAX_GEOMS = 30000;
     std::vector<std::string> lines;
-    lines.reserve(MAX_GEOMS);
     std::string line;
-    while (lines.size() < MAX_GEOMS && std::getline(file, line)) {
+    while (std::getline(file, line)) {
         lines.push_back(line);
     }
     file.close();
@@ -79,25 +68,13 @@ char** read_wkt_csv_fast(const char* filepath, char delimiter,
         return nullptr;
     }
 
-    // Detect geometry column using GEOS, try first line + up to MAX_TRIES subsequent lines
-    const size_t MAX_TRIES = 10;
+    // Detect geometry column using GEOS
     GEOSContextHandle_t tmp_handle = GEOS_init_r();
-    int geom_col = -1;
-
-    // 1) Try the header row we already read
-    geom_col = detect_geometry_column(first_line, delimiter, tmp_handle);
-
-    // 2) If that failed, try the next few data rows
-    for (size_t i = 0; geom_col < 0 && i < lines.size() && i < MAX_TRIES; ++i) {
-        geom_col = detect_geometry_column(lines[i], delimiter, tmp_handle);
-    }
-
+    int geom_col = detect_geometry_column(first_line, delimiter, tmp_handle);
     GEOS_finish_r(tmp_handle);
 
     if (geom_col < 0) {
-        std::cerr << "Could not detect geometry column after "
-                  << (1 + std::min(lines.size(), MAX_TRIES)) 
-                  << " attempts.\n";
+        std::cerr << "Could not detect geometry column.\n";
         *out_count = 0;
         return nullptr;
     }
