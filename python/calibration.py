@@ -12,9 +12,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-#import torch_xla
-#from torch_xla.core.xla_model import xla_device
-#import torch_xla.core.xla_model as xm
+import torch_xla
+from torch_xla.core.xla_model import xla_device
+import torch_xla.core.xla_model as xm
 
 from torch.utils.data import DataLoader, TensorDataset
 
