@@ -118,7 +118,7 @@ def threshold_quant_ci(
 **Purpose:**  
 Implements a **Horvitz–Thompson–style** sequential CI:  
 - Sorts all sample scores in descending order.  
-- Iterates through ranks \(k=1\ldots\) until the normal‐approximate lower bound:
+- Iterates through ranks k = 1.... until the normal‐approximate lower bound:
 
 ![Image](https://github.com/user-attachments/assets/d2917296-6dd5-4653-8d26-69f7069d2fa5)
 
