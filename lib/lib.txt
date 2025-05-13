@@ -1,0 +1,1 @@
+This is the directory the lib files will be created after "make all"
