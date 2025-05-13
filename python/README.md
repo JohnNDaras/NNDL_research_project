@@ -60,6 +60,288 @@ my_project/
 
 ## Module Overview
 
+# `thresholds.py`
+
+## Overview
+
+`thresholds.py` implements several **threshold‐selection algorithms** for achieving a user‐specified recall target \(R^\star\) on a set of positively‐labeled scores. Each function takes as input an array of scores for verified positives (and optionally labels), and returns the smallest score threshold whose corresponding lower‐bound recall (or estimated recall) meets or exceeds \(R^\star\).
+
+---
+
+## Table of Contents
+
+1. [Dependencies](#dependencies)  
+2. [Functions](#functions)  
+   - [`threshold_recall_wilson`](#1-threshold_recall_wilson)  
+   - [`threshold_recall_confidence`](#2-threshold_recall_confidence-clopper--pearson)  
+   - [`threshold_quant_ci`](#3-threshold_quant_ci)  
+3. [Usage Examples](#usage-examples)  
+4. [Parameter Reference](#parameter-reference)  
+
+---
+
+## Dependencies
+
+- **NumPy**  
+- **SciPy** (for `scipy.stats.norm` and `scipy.stats.beta`)
+
+Install via:
+
+```bash
+pip install numpy scipy
+```
+
+---
+
+## Functions
+
+### 1. `threshold_recall_wilson`
+
+```python
+def threshold_recall_wilson(
+        probs_pos: Sequence[float],
+        target_recall: float = 0.90,
+        alpha: float = 0.05,
+        verbose: bool = True
+    ) -> float:
+```
+
+**Purpose:**  
+Finds the smallest threshold \( \tau \) such that the one‐sided Wilson score lower bound on recall
+
+\[
+L_k = \frac{\hat{r} + z^2/(2N) - z\,\sqrt{\tfrac{\hat{r}(1-\hat{r})+z^2/(4N)}{N}}}{1 + z^2/N}
+\]
+
+where \(\hat{r}=k/N\), \(z=\Phi^{-1}(1-\alpha)\), meets \(\ge R^\star\).
+
+**Inputs:**  
+- `probs_pos`: array of scores for true positives  
+- `target_recall`: desired recall \(R^\star\)  
+- `alpha`: significance level (default 0.05 → 95% lower bound)  
+- `verbose`: print threshold & diagnostics  
+
+**Returns:**  
+- `threshold` (float)
+
+---
+
+### 2. `threshold_recall_confidence` (Clopper–Pearson)
+
+```python
+def threshold_recall_confidence(
+        probs_pos: Sequence[float],
+        target_recall: float = 0.90,
+        alpha: float = 0.05,
+        verbose: bool = True
+    ) -> float:
+```
+
+**Purpose:**  
+Uses the Clopper–Pearson exact binomial lower‐confidence bound
+
+\[
+L_k = \mathrm{Beta}^{-1}(\alpha; k,\;N-k+1)
+\]
+
+to select the smallest threshold achieving \(L_k \ge R^\star\).
+
+**Inputs & Returns:** same as Wilson method.
+
+---
+
+### 3. `threshold_quant_ci`
+
+```python
+def threshold_quant_ci(
+        scores_all: Sequence[float],
+        labels: Sequence[int],
+        target_recall: float = 0.90,
+        alpha: float = 0.05,
+        verbose: bool = True
+    ) -> float:
+```
+
+**Purpose:**  
+Implements a **Horvitz–Thompson–style** sequential CI:  
+- Sorts all sample scores in descending order.  
+- Iterates through ranks \(k=1\ldots\) until the normal‐approximate lower bound:
+
+\[
+\hat{r} - z \sqrt{\frac{\hat{r}(1-\hat{r})}{N_{\text{pos}}}}
+\]
+
+meets \(R^\star\), where \(\hat{r}=\tfrac{\text{cum\_pos}}{N_{\text{pos}}}\), \(N_{\text{pos}}=\sum y\).
+
+**Inputs:**  
+- `scores_all`: array of predicted probabilities  
+- `labels`: binary labels for each pair  
+
+**Returns:**  
+- `thr`: minimum probability threshold satisfying the lower-bound constraint
+
+---
+
+## Usage Examples
+
+```python
+import numpy as np
+from thresholds import threshold_recall_wilson, threshold_recall_confidence, threshold_quant_ci
+
+# Example positive scores
+pos_scores = np.random.beta(2,5, size=1000)
+
+# 1. Wilson lower bound
+tau_wilson = threshold_recall_wilson(
+    probs_pos=pos_scores,
+    target_recall=0.90,
+    alpha=0.05
+)
+
+# 2. Clopper–Pearson
+tau_cp = threshold_recall_confidence(
+    probs_pos=pos_scores,
+    target_recall=0.80,
+    alpha=0.10
+)
+
+# 3. QuantCI (requires labels)
+all_scores = np.concatenate([pos_scores, np.random.rand(2000)])
+all_labels = np.array([1]*len(pos_scores) + [0]*2000)
+tau_quant = threshold_quant_ci(
+    scores_all=all_scores,
+    labels=all_labels,
+    target_recall=0.85,
+    alpha=0.05
+)
+```
+
+---
+
+## Parameter Reference
+
+| Parameter        | Description                                                         |
+|------------------|---------------------------------------------------------------------|
+| `probs_pos`      | 1D array of scores for known positives                              |
+| `scores_all`     | 1D array of scores for entire calibration sample                   |
+| `labels`         | 1D binary array of ground‐truth labels for calibration sample      |
+| `target_recall`  | Desired recall \(R^\star\), e.g. 0.70, 0.80, 0.90                   |
+| `alpha`          | Significance level for lower bound (e.g. 0.05 → 95% confidence)     |
+| `verbose`        | If `True`, prints threshold and diagnostic messages                 |
+
+---
+
+# README for `ensemble.py`
+
+## Overview
+
+`ensemble.py` provides two **ensemble calibration** routines:
+
+1. `ensemble_threshold`:  
+   Inverse-variance weighted fusion of 4 base methods (CP, Jeffreys, Wilson, exact quantile) on a single subsample.
+
+2. `ensemble_threshold_multi`:  
+   Applies `ensemble_threshold` on multiple subsamples and fuses their results using `min`, `mean`, `median`, or `inverse-variance`.
+
+---
+
+## Dependencies
+
+```bash
+pip install numpy scipy
+```
+
+---
+
+## `ensemble_threshold`
+
+```python
+def ensemble_threshold(
+        pos_scores: np.ndarray,
+        target_recall: float = 0.90,
+        alpha: float = 0.05,
+        n_boot: int = 200,
+        random_state: int = 42,
+        verbose: bool = True
+    ) -> float
+```
+
+**Returns:**  
+Inverse-variance weighted score threshold from Clopper–Pearson, Jeffreys, Wilson, and exact quantile estimators.
+
+Each rule is run over `n_boot` bootstrap resamplings of the positive scores. The ensemble combines them with:
+
+\[
+\tau_{\text{ens}} = \frac{\sum_i \bar{\tau}_i / \hat{\sigma}_i^2}{\sum_i 1/\hat{\sigma}_i^2}
+\]
+
+---
+
+## `ensemble_threshold_multi`
+
+```python
+def ensemble_threshold_multi(
+        pos_scores: np.ndarray,
+        target_recall: float = 0.90,
+        alpha: float = 0.05,
+        n_boot: int = 200,
+        K: int = 9,
+        subsample_fr: float = 0.80,
+        random_state: int = 42,
+        fuse_method: str = "min",
+        verbose: bool = True
+    ) -> Tuple[float, List[float]]:
+```
+
+**Returns:**  
+- Final fused threshold (float)  
+- List of thresholds across `K` subsamples  
+
+Fusing options:
+- `"min"` (default): most conservative  
+- `"median"`  
+- `"mean"`  
+- `"inverse-variance"`
+
+---
+
+## Usage
+
+```python
+from ensemble import ensemble_threshold, ensemble_threshold_multi
+
+tau_single = ensemble_threshold(scores, target_recall=0.90)
+
+tau_final, all_subs = ensemble_threshold_multi(
+    scores,
+    target_recall=0.90,
+    K=9,
+    fuse_method="min"
+)
+```
+
+---
+
+## Parameters Summary
+
+| Param             | Meaning                                                      |
+|------------------|--------------------------------------------------------------|
+| `pos_scores`      | Array of verified positive scores                           |
+| `target_recall`   | Desired recall (e.g. 0.90)                                   |
+| `alpha`           | Confidence level (e.g. 0.05 for 95%)                         |
+| `n_boot`          | Number of bootstrap samples per method                      |
+| `K`               | Number of independent subsamples in multi-ensemble          |
+| `subsample_fr`    | Fraction of positives to sample per subsample               |
+| `fuse_method`     | How to combine K thresholds: `"min"`, `"mean"`, `"median"`  |
+| `verbose`         | Print detailed output                                       |
+
+---
+
+
+
+
+
+
 ### `reader.py`
 
 **Purpose:**  
