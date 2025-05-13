@@ -60,6 +60,332 @@ my_project/
 
 ## Module Overview
 
+
+
+# `calibration.py`
+
+## Overview
+
+`calibration.py` implements a complete pipeline for **exact‐recall threshold calibration** in large‐scale spatial entity matching. It ingests two polygon datasets (source and target), filters candidate pairs via an equigrid index, trains a small neural “ranker” on a bootstrap sample, builds a reproducible calibration set (either random or xxHash‐stratified), applies a variety of classical and ensemble threshold rules, and finally verifies until a user‐specified budget or recall target is met.
+
+---
+
+## `calibration_Based_Algorithm`
+
+Encapsulates data loading, preprocessing, model training, sampling, threshold estimation, and verification.
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Usage](#usage)
+- [File Structure](#file-structure)
+- [Class: calibration_Based_Algorithm](#class-calibration_based_algorithm)
+- [Threshold Methods](#threshold-methods)
+- [Configuration & Hyper-parameters](#configuration--hyper-parameters)
+- [Performance & Logging](#performance--logging)
+- [Extending & Troubleshooting](#extending--troubleshooting)
+
+---
+
+## Features
+
+- **Spatial Filtering via equigrid MBR index → CSR arrays**
+- **Deterministic Sampling**
+  - Random subsample
+  - xxHash‐decile‐stratified calibration set
+- **Neural Ranker**
+  - 16-dim input → 128 → 64 → 1 sigmoid
+  - Trained on 1000 labeled pairs (500 positive / 500 negative)
+- **Threshold Calibration**
+  - Clopper–Pearson, Wilson, Jeffreys, exact quantile
+  - Inverse‐variance ensemble
+  - Min‐fusion across 9 stratified subsamples
+- **Budget-constrained Verification**
+  - DE-9IM relations via `RelatedGeometries`
+  - Reports true positives until budget exhausted
+- **Fully TPU-friendly** via `torch_xla`
+
+---
+
+## Dependencies
+
+- Python 3.8+
+- NumPy
+- Pandas
+- SciPy
+- scikit-learn
+- Shapely
+- xxhash
+- PyTorch + torch_xla
+- `CsvReader`, `RelatedGeometries`, `FastGeom`, `CandidateStats` (project-specific utility modules)
+
+### Install via:
+
+```bash
+pip install numpy pandas scipy scikit-learn shapely xxhash torch torchvision torch_xla
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/your-org/recall-exact-calib.git
+cd recall-exact-calib
+```
+
+Ensure you have a **TPU environment** (Colab Pro+, Google Cloud TPU, or similar). Install required Python packages (see above).
+
+Place `calibration.py` alongside the utility modules:
+
+- `csv_reader.py` (implements `CsvReader`)
+- `related_geometries.py` (implements `RelatedGeometries`)
+- `fast_geom.py` (implements `FastGeom`)
+- `candidate_stats.py` (implements `CandidateStats`)
+
+---
+
+## Usage
+
+```python
+from calibration import calibration_Based_Algorithm
+
+# Define parameters
+algo = calibration_Based_Algorithm(
+    budget           = 140_000,
+    qPairs           = 100_000,
+    delimiter        = '\t',
+    sourceFilePath   = 'data/source.tsv',
+    targetFilePath   = 'data/target.tsv',
+    target_recall    = 0.90,
+    sampling_method  = 'hashing',     # or 'random'
+    threshold_method = 'ensemble_multi'  # or 'QuantCI', 'Clopper_Pearson', 'wilson', 'ensemble'
+)
+algo.applyProcessing()
+```
+
+---
+
+## File Structure
+
+```
+recall-exact-calib/
+├── calibration.py         # Main pipeline class
+├── csv_reader.py          # CsvReader: loads geometries as WKB/polygons
+├── related_geometries.py  # RelatedGeometries: efficient DE-9IM verifier
+├── fast_geom.py           # FastGeom: bounds, lengths, point counts
+├── candidate_stats.py     # CandidateStats: per-target co-occurrence stats
+├── requirements.txt       # Pinned dependencies
+└── notebooks/             # Example Colab notebooks
+```
+
+---
+
+## Class: `calibration_Based_Algorithm`
+
+### `__init__(…)`
+
+```python
+def __init__(self, budget, qPairs, delimiter, sourceFilePath, targetFilePath, target_recall, sampling_method, threshold_method)
+```
+
+- `budget`: max pairs to verify
+- `qPairs`: DE-9IM comparisons in bootstrap
+- `delimiter`: e.g. `'\t'` for TSV
+- `sourceFilePath` / `targetFilePath`: input geometry files
+- `target_recall`: desired recall (e.g. 0.90)
+- `sampling_method`: `'hashing'` or `'random'`
+- `threshold_method`: `'QuantCI'`, `'Clopper_Pearson'`, `'wilson'`, `'ensemble'`, `'ensemble_multi'`
+
+### `applyProcessing()`
+
+Full pipeline controller:
+
+1. `setThetas()` — compute equigrid cell size  
+2. `preprocessing()` — indexing, filtering, min/max stats  
+3. `trainModel()` — 500+500 training  
+4. `build_calibration_sample()` (if hashing)  
+5. `verification()` — scoring + threshold + review
+
+Prints:
+
+```yaml
+Indexing Time     : hh:mm:ss
+Initialization    : hh:mm:ss
+Training Time     : hh:mm:ss
+Sampling Time     : hh:mm:ss  # if hashing
+Verification Time : hh:mm:ss
+```
+
+---
+
+## Preprocessing
+
+### `setThetas()`
+
+- Reads source bounds using `FastGeom`
+- Averages MBR width/height → `thetaX`, `thetaY`
+
+### `estimate_grid_size(n)`
+
+Returns square grid size `dim × dim` (between 16–256)
+
+### `build_candidate_csr(indices, num_targets)`
+
+CSR representation:
+- `offsets`: length = `num_targets + 1`
+- `values`: sourceIds per targetId
+
+### `preprocessing()`
+
+- Uses hashing or random for `sample_ids`, `calibration_sample_ids`
+- Computes bounding boxes, areas, blocks, points, lengths
+- Applies grid snapping → intersecting tile IDs
+- Filters valid source-target MBR pairs
+- Populates calibration and training sets
+
+---
+
+## Sampling
+
+### `build_calibration_sample(max_pairs=250_000, seed=2026)`
+
+- Scores all filtered pairs with `predict_in_batches()`
+- Assigns score decile
+- Uses `xxhash(id ∥ decile)` for deterministic selection
+- Picks top `k` pairs across all deciles
+
+---
+
+## Model Training
+
+### `create_model(input_dim)`
+
+- `Linear(16→128)` → ReLU → Dropout(0.3) → BatchNorm  
+- `Linear(128→64)` → ReLU → Dropout(0.5) → BatchNorm  
+- `Linear(64→1)` → Sigmoid
+
+### `train_model(X, y)`
+
+- Validates data
+- Splits 90/10 for validation
+- Trains using BCE + Adam (lr=1e-3), early stopping
+
+### `trainModel()`
+
+- Shuffles and verifies pairs
+- Uses `RelatedGeometries` to select 500 pos/neg
+- Featurizes and trains the model
+
+---
+
+## Prediction
+
+### `predict(X)`
+
+Single-batch inference on TPU
+
+### `predict_in_batches(X, batch_size=8192)`
+
+Batched TPU inference for large datasets
+
+---
+
+## Feature Extraction
+
+### `get_feature_vector(sourceIds, targetIds)`
+
+Constructs 16D vector per (sId, tId) pair:
+
+- MBR areas
+- Intersection area
+- Co-occurrence stats
+- Point counts
+- Lengths
+- # Neighbors
+
+→ Scaled to [0, 10000] for each feature
+
+### `getNoOfBlocks1(envelopes)`
+
+Computes # grid blocks each geometry spans
+
+---
+
+## Verification
+
+### `verification()`
+
+- Shuffles calibration pairs
+- Verifies positives with `RelatedGeometries`
+- Gets prediction probabilities
+- Applies selected threshold method:
+  - `threshold_quant_ci`
+  - `threshold_recall_confidence`
+  - `threshold_recall_wilson`
+  - `ensemble_threshold`
+  - `ensemble_threshold_multi`
+- Filters top candidates exceeding threshold
+- Verifies final top-k pairs until budget is met
+
+---
+
+## Threshold Methods
+
+- `QuantCI`: unbiased recall estimator  
+- `Clopper_Pearson`: exact binomial lower bound  
+- `Wilson`: normal approx. lower bound  
+- `ensemble`: inverse-variance fusion of 4 rules  
+- `ensemble_multi`: `min()` across 9 stratified ensemble runs
+
+Each returns a scalar threshold on probability.
+
+---
+
+## Configuration & Hyper-parameters
+
+| Parameter                 | Value         | Description                         |
+|--------------------------|---------------|-------------------------------------|
+| `CLASS_SIZE`             | 500           | Number of positive/negative labels  |
+| `SAMPLE_SIZE`            | 50,000        | Bootstrap sample size               |
+| Calibration sample size  | 250,000       | Pairs for threshold estimation      |
+| Subsamples (multi)       | 9             | In ensemble multi                   |
+| Bootstraps per rule      | 200           | For variance estimation             |
+| Batch size               | 8,192         | Inference batch size                |
+| Learning rate            | 1e-3          | Adam optimizer                      |
+| Epochs / Early-stop      | 30 / 3        | Max and patience                    |
+
+---
+
+## Performance & Logging
+
+- **Filtering:** ~2M pairs/sec on TPU  
+- **Training:** ~0.7 s for 1,000 samples  
+- **Inference:** ~41 s for 67M pairs (~8,600 pairs/ms)  
+- **Calibration:** ~1–2 s (200×4×9 runs)  
+- **Verification:** ~40% of total runtime (geometry-heavy)  
+- **Logging:** Printed per stage by `applyProcessing()`
+
+---
+
+## Extending & Troubleshooting
+
+- Replace `xla_device()` with `torch.device("cpu"/"cuda")` to run on CPU/GPU.
+- Ensure utility modules return expected data types (NumPy, Shapely).
+- Add new threshold methods by extending `verification()`.
+- Reduce calibration size or batch size to save memory.
+- Insert `print()` or use `logging` to trace/debug stages.
+
+---
+
+
+
 # `thresholds.py`
 
 ## Overview
