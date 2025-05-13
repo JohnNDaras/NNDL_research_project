@@ -38,6 +38,8 @@ For example, to run on dataset D2 with random sampling and a Wilson‐interval t
 
 ```bash
 make run DATASET=D2 RECALL=0.80 SAMPLER=random THRESHOLD=wilson
+```
+
 
 To evaluate all datasets sequentially:
 ```bash
