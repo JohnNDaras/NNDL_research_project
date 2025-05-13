@@ -115,7 +115,7 @@ Finds the smallest threshold \( \tau \) such that the one‐sided Wilson score l
 
 where
 
-![Image](https://github.com/user-attachments/assets/c9b8d9be-539f-4ead-b995-ccac40581ae9)
+![Image](https://github.com/user-attachments/assets/7f9e2ea9-f4ea-4945-bc0d-2828b985d6cc)
 
 
 **Inputs:**  
@@ -143,9 +143,7 @@ def threshold_recall_confidence(
 **Purpose:**  
 Uses the Clopper–Pearson exact binomial lower‐confidence bound
 
-\[
-L_k = \mathrm{Beta}^{-1}(\alpha; k,\;N-k+1)
-\]
+![Image](https://github.com/user-attachments/assets/ae1de49f-9dd4-4bfc-8f2b-da81b3c77352)
 
 to select the smallest threshold achieving \(L_k \ge R^\star\).
 
@@ -170,11 +168,12 @@ Implements a **Horvitz–Thompson–style** sequential CI:
 - Sorts all sample scores in descending order.  
 - Iterates through ranks \(k=1\ldots\) until the normal‐approximate lower bound:
 
-\[
-\hat{r} - z \sqrt{\frac{\hat{r}(1-\hat{r})}{N_{\text{pos}}}}
-\]
+![Image](https://github.com/user-attachments/assets/535e98ba-a4d3-4b02-9d91-89cf79438356)
 
-meets \(R^\star\), where \(\hat{r}=\tfrac{\text{cum\_pos}}{N_{\text{pos}}}\), \(N_{\text{pos}}=\sum y\).
+meets \(R^\star\), where 
+
+![Image](https://github.com/user-attachments/assets/45fa1a25-999c-4f18-92dc-47e8fb441238)
+
 
 **Inputs:**  
 - `scores_all`: array of predicted probabilities  
