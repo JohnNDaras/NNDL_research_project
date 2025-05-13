@@ -1,6 +1,5 @@
-# NNDL_research_project
 
-# Spatial Join Recall Estimation – Experimental Evaluation
+# Ensemble Threshold Calibration for Stable Sensitivity Control
 
 This project evaluates various recall estimation methods under constrained budgets for spatial join problems. The experiments cover four different real-world datasets (D1–D4), several recall targets (0.70, 0.80, 0.90), and five different methods:
 
@@ -59,11 +58,11 @@ This figure shows the average standard deviation of recall over multiple runs fo
 ###  Mean Recall for Each Method Across Datasets
 This figure shows the mean achieved recall for each method across all datasets at different target levels.
 
-![Mean Recall Combined](mean_combined.png)
+![Image](https://github.com/user-attachments/assets/5f064baa-f4d6-48fb-84ab-91f28b62d290)
 
 ---
 
-## 📋 Detailed Tables
+## Detailed Tables
 
 ### Table 1: Achieved Recall (μ ± σ) — Dataset D1
 
