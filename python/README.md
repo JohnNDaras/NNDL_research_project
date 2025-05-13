@@ -1,60 +1,3 @@
-# Spatial Join & Geometry Calibration Toolkit
-
-This repository provides a high-performance pipeline for large-scale spatial joins and geometry-based relationship calibration. The core of the system is a C++ library (exposed via `ctypes`) for extremely fast WKB parsing, bounding-box indexing, and DE-9IM relating, combined with a Python framework for sampling, model training, and threshold calibration.
-
----
-
-## Table of Contents
-
-1. [Quickstart](#quickstart)  
-2. [Project Layout](#project-layout)  
-3. [Module Overview](#module-overview)  
-   - [`reader.py`](#readerpy)  
-   - [`candidate_stats.py`](#candidate-statspy)  
-   - [`fast_geom.py`](#fast-geumpy)  
-   - [`de9im_patterns.py`](#de9im-patternspy)  
-   - [`related_geoms.py`](#related-geometrypy)  
-4. [Workflow Example](#workflow-example)  
-5. [Development & Extension](#development--extension)  
-
----
-
-## Quickstart
-
-1. **Build & install**  
-   ```bash
-   make all         # compiles C++ libraries into lib/
-   make install     # installs Python dependencies
-   ```
-2. **Run** on dataset “D1” (defaults):  
-   ```bash
-   make run
-   ```
-3. **Run** on all datasets in sequence:  
-   ```bash
-   make run-all
-   ```
-
----
-
-## Project Layout
-
-```
-my_project/
-├── Makefile
-├── requirements.txt
-├── README.md
-├── data/                   # your input CSVs/WKT files
-├── lib/                    # compiled .so libraries
-├── cpp/                    # C++ source files
-└── python/                 # Python modules
-    ├── reader.py
-    ├── candidate_stats.py
-    ├── fast_geom.py
-    ├── de9im_patterns.py
-    ├── related_geoms.py
-    └── calibration.py      # main driver (calls the above)
-```
 
 ---
 
@@ -62,11 +5,6 @@ my_project/
 
 
 
-# `calibration.py`
-
-## Overview
-
-`calibration.py` implements a complete pipeline for **exact‐recall threshold calibration** in large‐scale spatial entity matching. It ingests two polygon datasets (source and target), filters candidate pairs via an equigrid index, trains a small neural “ranker” on a bootstrap sample, builds a reproducible calibration set (either random or xxHash‐stratified), applies a variety of classical and ensemble threshold rules, and finally verifies until a user‐specified budget or recall target is met.
 
 ---
 
@@ -351,6 +289,11 @@ tau_final, all_subs = ensemble_threshold_multi(
 
 ---
 
+# `calibration.py`
+
+## Overview
+
+`calibration.py` implements a complete pipeline for **exact‐recall threshold calibration** in large‐scale spatial entity matching. It ingests two polygon datasets (source and target), filters candidate pairs via an equigrid index, trains a small neural “ranker” on a bootstrap sample, builds a reproducible calibration set (either random or xxHash‐stratified), applies a variety of classical and ensemble threshold rules, and finally verifies until a user‐specified budget or recall target is met.
 
 
 ## `calibration_Based_Algorithm`
@@ -637,6 +580,9 @@ Each returns a scalar threshold on probability.
 
 ---
 
+# Spatial Join & Geometry Calibration Toolkit
+
+This repository provides a high-performance pipeline for large-scale spatial joins and geometry-based relationship calibration. The core of the system is a C++ library (exposed via `ctypes`) for extremely fast WKB parsing, bounding-box indexing, and DE-9IM relating, combined with a Python framework for sampling, model training, and threshold calibration.
 
 
 
