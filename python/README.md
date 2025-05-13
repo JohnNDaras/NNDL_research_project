@@ -143,7 +143,7 @@ def threshold_recall_confidence(
 **Purpose:**  
 Uses the Clopper–Pearson exact binomial lower‐confidence bound
 
-![Image](https://github.com/user-attachments/assets/ae1de49f-9dd4-4bfc-8f2b-da81b3c77352)
+![Image](https://github.com/user-attachments/assets/6951626a-c527-4b8b-813b-f097657a916b)
 
 to select the smallest threshold achieving \(L_k \ge R^\star\).
 
@@ -168,11 +168,11 @@ Implements a **Horvitz–Thompson–style** sequential CI:
 - Sorts all sample scores in descending order.  
 - Iterates through ranks \(k=1\ldots\) until the normal‐approximate lower bound:
 
-![Image](https://github.com/user-attachments/assets/535e98ba-a4d3-4b02-9d91-89cf79438356)
+![Image](https://github.com/user-attachments/assets/d2917296-6dd5-4653-8d26-69f7069d2fa5)
 
 meets \(R^\star\), where 
 
-![Image](https://github.com/user-attachments/assets/45fa1a25-999c-4f18-92dc-47e8fb441238)
+![Image](https://github.com/user-attachments/assets/36acb145-ba36-4db6-824f-7d3bc1704c03)
 
 
 **Inputs:**  
@@ -273,9 +273,7 @@ Inverse-variance weighted score threshold from Clopper–Pearson, Jeffreys, Wils
 
 Each rule is run over `n_boot` bootstrap resamplings of the positive scores. The ensemble combines them with:
 
-\[
-\tau_{\text{ens}} = \frac{\sum_i \bar{\tau}_i / \hat{\sigma}_i^2}{\sum_i 1/\hat{\sigma}_i^2}
-\]
+![Image](https://github.com/user-attachments/assets/24f1dd77-b3ba-43d3-9dce-3be6c08db21c)
 
 ---
 
