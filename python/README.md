@@ -109,18 +109,13 @@ def threshold_recall_wilson(
 **Purpose:**  
 Finds the smallest threshold \( \tau \) such that the one‐sided Wilson score lower bound on recall
 
-\[
-L_k = \frac{\hat{r} + z^2/(2N) - z\,\sqrt{\tfrac{\hat{r}(1-\hat{r})+z^2/(4N)}{N}}}{1 + z^2/N}
-\]
-
-where \(\hat{r}=k/N\), \(z=\Phi^{-1}(1-\alpha)\), meets \(\ge R^\star\).
 
 ![Image](https://github.com/user-attachments/assets/62a5c3d5-ba0d-47b1-be24-43ec8ee73d7b)
 
 
 where
 
-![Image](https://github.com/user-attachments/assets/d3456302-0830-4397-80a0-a890f2b3067a)
+![Image](https://github.com/user-attachments/assets/c9b8d9be-539f-4ead-b995-ccac40581ae9)
 
 
 **Inputs:**  
