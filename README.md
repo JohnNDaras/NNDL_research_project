@@ -27,6 +27,18 @@ Use the dataset shortcut (`D1`, `D2`, etc.) to launch a specific configuration. 
 make run DATASET=D3
 ```
 
+You can override not only the dataset but also any of the algorithm parameters:
+
+- `DATASET`  → one of `D1`, `D2`, `D3`, `D4`  
+- `RECALL`   → target recall level, e.g. `0.70`, `0.80`, `0.90`  
+- `SAMPLER`  → sampling method, either `hashing` or `random`  
+- `THRESHOLD`→ threshold method, one of `QuantCI`, `Clopper_Pearson`, `wilson`, `ensemble`, `ensemble_multi`  
+
+For example, to run on dataset D2 with random sampling and a Wilson‐interval threshold at a recall target of 0.80:
+
+```bash
+make run DATASET=D2 RECALL=0.80 SAMPLER=random THRESHOLD=wilson
+
 To evaluate all datasets sequentially:
 ```bash
 make run-all
