@@ -47,13 +47,34 @@ QPAIRS_D3  := 3841922
 BUDGET_D4  := 67336808
 QPAIRS_D4  := 12145630
 
-# Pick the right file & params for the current DATASET
-SRC_FILE  := $(DATA_DIR)/$(SRC_$(DATASET))
-TGT_FILE  := $(DATA_DIR)/$(TGT_$(DATASET))
+# pick per‐dataset scalars
 BUDGET    := $(BUDGET_$(DATASET))
 QPAIRS    := $(QPAIRS_$(DATASET))
 
-# Global algorithm defaults (can still override on command line)
+# ————————————————————————————————
+# Locate source & target files (flat or in subfolder)
+# ————————————————————————————————
+# try flat first, then fallback to data/D1/, data/D2/, etc.
+_SRC1 := $(DATA_DIR)/$(SRC_$(DATASET))
+_TGT1 := $(DATA_DIR)/$(TGT_$(DATASET))
+_SRC2 := $(DATA_DIR)/$(DATASET)/$(SRC_$(DATASET))
+_TGT2 := $(DATA_DIR)/$(DATASET)/$(TGT_$(DATASET))
+
+ifeq ($(wildcard $(_SRC2)),)
+  SRC_FILE := $(_SRC1)
+else
+  SRC_FILE := $(_SRC2)
+endif
+
+ifeq ($(wildcard $(_TGT2)),)
+TGT_FILE := $(_TGT1)
+else
+TGT_FILE := $(_TGT2)
+endif
+
+# ————————————————————————————————
+# Global algorithm defaults
+# ————————————————————————————————
 RECALL    ?= 0.90
 SAMPLER   ?= hashing
 THRESHOLD ?= ensemble_multi
