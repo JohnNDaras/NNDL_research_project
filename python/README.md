@@ -115,6 +115,14 @@ L_k = \frac{\hat{r} + z^2/(2N) - z\,\sqrt{\tfrac{\hat{r}(1-\hat{r})+z^2/(4N)}{N}
 
 where \(\hat{r}=k/N\), \(z=\Phi^{-1}(1-\alpha)\), meets \(\ge R^\star\).
 
+![Image](https://github.com/user-attachments/assets/6346be4b-00eb-4bb4-a9fd-0c104693c41e)
+
+
+where
+
+![Image](https://github.com/user-attachments/assets/d3456302-0830-4397-80a0-a890f2b3067a)
+
+
 **Inputs:**  
 - `probs_pos`: array of scores for true positives  
 - `target_recall`: desired recall \(R^\star\)  
