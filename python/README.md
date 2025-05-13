@@ -146,7 +146,7 @@ Uses the Clopper–Pearson exact binomial lower‐confidence bound
 
 ![Image](https://github.com/user-attachments/assets/6951626a-c527-4b8b-813b-f097657a916b)
 
-to select the smallest threshold achieving \(L_k \ge R^\star\).
+to select the smallest threshold achieving L_k >= R*.
 
 **Inputs & Returns:** same as Wilson method.
 
@@ -171,7 +171,7 @@ Implements a **Horvitz–Thompson–style** sequential CI:
 
 ![Image](https://github.com/user-attachments/assets/d2917296-6dd5-4653-8d26-69f7069d2fa5)
 
-meets \(R^\star\), where 
+meets R*, where 
 
 ![Image](https://github.com/user-attachments/assets/36acb145-ba36-4db6-824f-7d3bc1704c03)
 
