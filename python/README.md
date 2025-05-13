@@ -839,4 +839,3 @@ rg.print()
 
 ---
 
-With this setup, you get **C++-level speed** for low-level geometry ops, combined with **Python flexibility** for sampling, training, and calibration. Enjoy!
