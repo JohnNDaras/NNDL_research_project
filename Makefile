@@ -18,7 +18,7 @@ DATA_DIR   := data
 DATASET    ?= D1
 
 # ————————————————————————————————
-# 1) Map DATASET → source & target filenames
+# Map DATASET → source & target filenames
 # ————————————————————————————————
 SRC_D1 := AREAWATER.csv
 TGT_D1 := LINEARWATER.csv
@@ -33,7 +33,7 @@ SRC_D4 := parks.csv
 TGT_D4 := roads.csv
 
 # ————————————————————————————————
-# 2) Map DATASET → BUDGET & QPAIRS
+# Map DATASET → BUDGET & QPAIRS
 # ————————————————————————————————
 BUDGET_D1  := 6310640
 QPAIRS_D1  := 2401396
@@ -59,7 +59,7 @@ SAMPLER   ?= hashing
 THRESHOLD ?= ensemble_multi
 
 # ————————————————————————————————
-# 3) C++ sources → shared libraries
+# C++ sources → shared libraries
 # ————————————————————————————————
 WKT_SRCS   := \
     $(CPP_DIR)/read_wkt_csv.cpp \
@@ -86,30 +86,30 @@ $(LIB_DIR):
 	mkdir -p $(LIB_DIR)
 
 #
-# 1) Build libwkt.so from both read_wkt_csv.cpp + wkt_wrapper.cpp
+# Build libwkt.so from both read_wkt_csv.cpp + wkt_wrapper.cpp
 #
 $(LIB_DIR)/libwkt.so: $(WKT_SRCS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(GEOS_LIBS)
 
 
-# 2) Build librelate_wkb_u64.so—and link in GEOS_C for GEOSWKBReader_*
+# Build librelate_wkb_u64.so—and link in GEOS_C for GEOSWKBReader_*
 $(LIB_DIR)/librelate_wkb_u64.so: $(CPP_DIR)/relate_wkb_u64.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(GEOS_LIBS)
 
 #
-# 3) Build the rest via a pattern rule
+# Build the rest via a pattern rule
 #
 $(LIB_DIR)/lib%.so: $(CPP_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS)
 
 # ————————————————————————————————
-# 4) Python deps
+# Python deps
 # ————————————————————————————————
 install:
 	pip install -r requirements.txt
 
 # ————————————————————————————————
-# 5) Run on a single dataset
+# Run on a single dataset
 # ————————————————————————————————
 run: all install
 	@echo "→ Running calibration on dataset $(DATASET)"
@@ -127,7 +127,7 @@ run: all install
 	    --threshold_method $(THRESHOLD)
 
 # ————————————————————————————————
-# 6) Loop through D1…D4 in sequence
+# Loop through D1…D4 in sequence
 # ————————————————————————————————
 run-all:
 	@for ds in D1 D2 D3 D4 ; do \
@@ -136,7 +136,7 @@ run-all:
 	done; echo
 
 # ————————————————————————————————
-# 7) Clean up
+# Clean up
 # ————————————————————————————————
 clean:
 	rm -rf $(LIB_DIR)/*.so
