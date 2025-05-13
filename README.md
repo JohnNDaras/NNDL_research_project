@@ -64,27 +64,10 @@ This figure shows the mean achieved recall for each method across all datasets a
 
 ## Detailed Tables
 
-### Table 1: Achieved Recall (μ ± σ) — Dataset D1
-
-| Target | QuantCI         | IVW-1          | Wilson-rnd      | Proposed        |
-|--------|------------------|----------------|------------------|------------------|
-| 0.70   | 0.693 ± 0.007    | 0.696 ± 0.001  | 0.701 ± 0.009    | 0.698 ± 0.001    |
-| 0.80   | 0.799 ± 0.003    | 0.798 ± 0.002  | 0.798 ± 0.004    | 0.799 ± 0.001    |
-| 0.90   | 0.901 ± 0.002    | 0.900 ± 0.002  | 0.902 ± 0.002    | 0.900 ± 0.002    |
 
 ---
 
-### Table 2: Achieved Recall (μ ± σ) — Dataset D2
-
-| Target | QuantCI         | IVW-1          | Wilson-rnd      | Proposed        |
-|--------|------------------|----------------|------------------|------------------|
-| 0.70   | 0.701 ± 0.012    | 0.694 ± 0.007  | 0.701 ± 0.062    | 0.699 ± 0.002    |
-| 0.80   | 0.793 ± 0.003    | 0.786 ± 0.010  | 0.777 ± 0.036    | 0.798 ± 0.001    |
-| 0.90   | 0.889 ± 0.015    | 0.892 ± 0.002  | 0.891 ± 0.035    | 0.892 ± 0.002    |
-
----
-
-### Table 3: Achieved Recall (μ ± σ) — Dataset D3
+### Table 1: Achieved Recall (μ ± σ) — Dataset D3
 
 | Target | QuantCI         | IVW-1          | Wilson-rnd      | Proposed        |
 |--------|------------------|----------------|------------------|------------------|
@@ -94,7 +77,7 @@ This figure shows the mean achieved recall for each method across all datasets a
 
 ---
 
-### Table 4: Achieved Recall (μ ± σ) — Dataset D4
+### Table 2: Achieved Recall (μ ± σ) — Dataset D4
 
 | Target | QuantCI         | IVW-1          | Wilson-rnd      | Proposed        |
 |--------|------------------|----------------|------------------|------------------|
