@@ -1,0 +1,8 @@
+numpy
+scipy
+pandas
+shapely
+scikit-learn
+xxhash
+torch
+torch-xla
