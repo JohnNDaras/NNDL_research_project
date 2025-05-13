@@ -117,6 +117,7 @@ where
 
 ![Image](https://github.com/user-attachments/assets/7f9e2ea9-f4ea-4945-bc0d-2828b985d6cc)
 
+meets >= R*
 
 **Inputs:**  
 - `probs_pos`: array of scores for true positives  
