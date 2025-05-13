@@ -185,7 +185,7 @@ tau_quant = threshold_quant_ci(
 
 ---
 
-# README for `ensemble.py`
+# `ensemble.py`
 
 ## Overview
 
