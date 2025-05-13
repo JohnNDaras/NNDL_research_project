@@ -51,7 +51,8 @@ We evaluate the variance and accuracy of recall estimates under different recall
 ### Standard Deviation of Recall Across Methods
 This figure shows the average standard deviation of recall over multiple runs for each method and target level.
 
-![Std Dev Combined](std_combined.png)
+
+![Image](https://github.com/user-attachments/assets/e8b9bd72-bf73-4f23-93e4-2c6aac611094)
 
 ---
 
