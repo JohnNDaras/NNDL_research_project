@@ -115,7 +115,7 @@ L_k = \frac{\hat{r} + z^2/(2N) - z\,\sqrt{\tfrac{\hat{r}(1-\hat{r})+z^2/(4N)}{N}
 
 where \(\hat{r}=k/N\), \(z=\Phi^{-1}(1-\alpha)\), meets \(\ge R^\star\).
 
-![Image](https://github.com/user-attachments/assets/6346be4b-00eb-4bb4-a9fd-0c104693c41e)
+![Image](https://github.com/user-attachments/assets/62a5c3d5-ba0d-47b1-be24-43ec8ee73d7b)
 
 
 where
