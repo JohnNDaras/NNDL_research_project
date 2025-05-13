@@ -131,26 +131,6 @@ pip install numpy pandas scipy scikit-learn shapely xxhash torch torchvision tor
 
 ---
 
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/your-org/recall-exact-calib.git
-cd recall-exact-calib
-```
-
-Ensure you have a **TPU environment** (Colab Pro+, Google Cloud TPU, or similar). Install required Python packages (see above).
-
-Place `calibration.py` alongside the utility modules:
-
-- `csv_reader.py` (implements `CsvReader`)
-- `related_geometries.py` (implements `RelatedGeometries`)
-- `fast_geom.py` (implements `FastGeom`)
-- `candidate_stats.py` (implements `CandidateStats`)
-
----
-
 ## Usage
 
 ```python
